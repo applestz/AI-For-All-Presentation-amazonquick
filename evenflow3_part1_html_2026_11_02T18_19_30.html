@@ -1,0 +1,1083 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evenflow — moodengs</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════
+       RESET & VARIABLES
+       ═══════════════════════════════════════ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --sky-light: #e3f2fd;
+      --sky-mid: #bbdefb;
+      --blue-primary: #64b5f6;
+      --blue-deep: #1565c0;
+      --blue-dark: #0d47a1;
+      --blue-accent: #42a5f5;
+      --blue-bright: #1e88e5;
+      --bus-body: #64b5f6;
+      --bus-dark: #1e88e5;
+      --bus-window: #e1f5fe;
+      --road-color: #546e7a;
+      --road-line: #fdd835;
+      --text-dark: #0d1b2a;
+      --text-light: #546e7a;
+      --white: #ffffff;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--sky-light);
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════════
+       NAVIGATION DOTS
+       ═══════════════════════════════════════ */
+    .nav-dots {
+      position: fixed;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--blue-deep);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: block;
+    }
+
+    .nav-dot.active {
+      background: var(--blue-deep);
+      transform: scale(1.3);
+    }
+
+    /* ═══════════════════════════════════════
+       SHARED STYLES
+       ═══════════════════════════════════════ */
+    .scene {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--blue-deep);
+      color: var(--white);
+      border: none;
+      box-shadow: 0 4px 20px rgba(21, 101, 192, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(21, 101, 192, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--blue-deep);
+      border: 2px solid var(--blue-deep);
+    }
+
+    .btn-outline:hover {
+      background: var(--blue-deep);
+      color: var(--white);
+    }
+
+    .highlight {
+      color: var(--blue-deep);
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════
+       SCENE 1: HERO
+       ═══════════════════════════════════════ */
+    .scene-hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #bbdefb 0%, #e3f2fd 40%, #e8f5e9 90%, #c8e6c9 100%);
+    }
+
+    .clouds {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 100px;
+      filter: blur(1px);
+    }
+
+    .cloud::before, .cloud::after {
+      content: '';
+      position: absolute;
+      background: inherit;
+      border-radius: 50%;
+    }
+
+    .cloud-1 { width: 200px; height: 50px; top: 10%; left: -10%; }
+    .cloud-1::before { width: 80px; height: 80px; top: -40px; left: 30px; }
+    .cloud-1::after { width: 100px; height: 70px; top: -30px; left: 80px; }
+
+    .cloud-2 { width: 160px; height: 40px; top: 20%; right: -5%; }
+    .cloud-2::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+    .cloud-2::after { width: 80px; height: 55px; top: -25px; left: 60px; }
+
+    .cloud-3 { width: 240px; height: 55px; top: 8%; left: 40%; }
+    .cloud-3::before { width: 90px; height: 90px; top: -45px; left: 50px; }
+    .cloud-3::after { width: 110px; height: 75px; top: -35px; left: 110px; }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+    }
+
+    .team-name {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--blue-deep);
+      opacity: 0;
+      margin-bottom: 16px;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: clamp(64px, 12vw, 140px);
+      font-weight: 700;
+      color: var(--blue-dark);
+      line-height: 1;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .brand-title .char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(100%);
+    }
+
+    .tagline {
+      font-size: clamp(16px, 2.5vw, 22px);
+      color: var(--text-light);
+      font-weight: 400;
+      max-width: 600px;
+      margin: 0 auto 12px;
+      opacity: 0;
+      line-height: 1.6;
+    }
+
+    .tagline-thai {
+      font-size: clamp(14px, 2vw, 17px);
+      color: var(--blue-deep);
+      font-weight: 500;
+      opacity: 0;
+      margin-bottom: 32px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      opacity: 0;
+      flex-wrap: wrap;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      z-index: 10;
+    }
+
+    .scroll-hint span {
+      font-size: 12px;
+      color: var(--text-light);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: var(--blue-deep);
+      animation: scroll-pulse 2s ease infinite;
+    }
+
+    @keyframes scroll-pulse {
+      0%, 100% { transform: scaleY(1); opacity: 1; }
+      50% { transform: scaleY(0.4); opacity: 0.3; }
+    }
+
+    .hero-bus {
+      position: absolute;
+      bottom: 48px;
+      right: 5%;
+      z-index: 5;
+      width: 280px;
+      height: 140px;
+    }
+
+    .skyline {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 200px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ═══════════════════════════════════════
+       SCENE 2: EXPLANATION
+       ═══════════════════════════════════════ */
+    .scene-explanation {
+      height: 300vh;
+      position: relative;
+      background: linear-gradient(180deg, #e8f5e9 0%, #e3f2fd 20%, var(--white) 100%);
+    }
+
+    .explanation-pin {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .explanation-bus {
+      position: absolute;
+      left: 80%;
+      bottom: 76px;
+      width: 320px;
+      z-index: 10;
+    }
+
+    .road {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 80px;
+      background: var(--road-color);
+      z-index: 1;
+    }
+
+    .road::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: repeating-linear-gradient(90deg, var(--road-line) 0, var(--road-line) 40px, transparent 40px, transparent 80px);
+      transform: translateY(-50%);
+    }
+
+    .buildings-bg {
+      position: absolute;
+      bottom: 80px;
+      left: 0;
+      width: 200%;
+      height: 300px;
+      z-index: 0;
+    }
+
+    .explanation-text {
+      position: absolute;
+      right: 8%;
+      top: 40%;
+      transform: translateY(-50%);
+      max-width: 480px;
+      z-index: 5;
+      opacity: 0;
+    }
+
+    .explanation-text h2 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 700;
+      color: var(--blue-dark);
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .explanation-text p {
+      font-size: 17px;
+      color: var(--text-light);
+      line-height: 1.7;
+    }
+
+    /* ═══════════════════════════════════════
+       SCENE 3: IMPACT
+       ═══════════════════════════════════════ */
+    .scene-impact {
+      height: 400vh;
+      position: relative;
+      background: var(--white);
+    }
+
+    .impact-pin {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Bus positioned at center of left half */
+    .impact-bus {
+      position: absolute;
+      left: 12%;
+      bottom: 25%;
+      z-index: 10;
+      width: 320px;
+    }
+
+    .passengers {
+      position: absolute;
+      right: -200px;
+      bottom: 28%;
+      z-index: 15;
+      display: flex;
+      gap: 20px;
+    }
+
+    .person {
+      width: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+    }
+
+    .person-head { width: 20px; height: 20px; border-radius: 50%; }
+    .person-body { width: 16px; height: 30px; border-radius: 8px 8px 4px 4px; margin-top: 2px; }
+    .person-legs { display: flex; gap: 4px; margin-top: 1px; }
+    .person-leg { width: 6px; height: 18px; border-radius: 3px; }
+
+    .person-red .person-head, .person-red .person-body { background: #ef5350; }
+    .person-red .person-leg { background: #c62828; }
+    .person-blue .person-head, .person-blue .person-body { background: #42a5f5; }
+    .person-blue .person-leg { background: #1565c0; }
+    .person-green .person-head, .person-green .person-body { background: #66bb6a; }
+    .person-green .person-leg { background: #2e7d32; }
+    .person-orange .person-head, .person-orange .person-body { background: #ffa726; }
+    .person-orange .person-leg { background: #e65100; }
+    .person-purple .person-head, .person-purple .person-body { background: #ab47bc; }
+    .person-purple .person-leg { background: #6a1b9a; }
+    .person-gray .person-head, .person-gray .person-body { background: #78909c; }
+    .person-gray .person-leg { background: #37474f; }
+
+    /* Impact text — with white card background */
+    .impact-text {
+      position: absolute;
+      right: 6%;
+      top: 50%;
+      transform: translateY(-50%);
+      max-width: 440px;
+      z-index: 20;
+      opacity: 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .impact-text h2 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 700;
+      color: var(--blue-dark);
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .impact-text p {
+      font-size: 17px;
+      color: var(--text-light);
+      line-height: 1.7;
+    }
+
+    /* Stats Boxes */
+    .stats-row {
+      position: absolute;
+      bottom: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 20;
+      opacity: 0;
+    }
+
+    .stat-box {
+      background: var(--blue-deep);
+      border-radius: 16px;
+      padding: 24px 32px;
+      text-align: center;
+      min-width: 180px;
+      box-shadow: 0 8px 32px rgba(21, 101, 192, 0.25);
+    }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    /* ═══════════════════════════════════════
+       SCENE 4: CTA
+       ═══════════════════════════════════════ */
+    .scene-cta {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, var(--white) 0%, #e3f2fd 50%, #bbdefb 100%);
+      position: relative;
+    }
+
+    .cta-content {
+      text-align: center;
+      z-index: 10;
+      opacity: 0;
+    }
+
+    .cta-content h2 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: 16px;
+    }
+
+    .cta-content p {
+      font-size: 18px;
+      color: var(--text-light);
+      margin-bottom: 36px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .btn-cta {
+      padding: 18px 48px;
+      font-size: 18px;
+      border-radius: 60px;
+      background: var(--blue-deep);
+      color: var(--white);
+      border: none;
+      font-family: var(--font-display);
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(21, 101, 192, 0.35);
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-cta:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 40px rgba(21, 101, 192, 0.45);
+    }
+
+    /* ═══════════════════════════════════════
+       BUS SVG STYLES
+       ═══════════════════════════════════════ */
+    .bus-body-fill { fill: var(--bus-body); }
+    .bus-roof-fill { fill: var(--blue-accent); }
+    .bus-bottom-fill { fill: var(--bus-dark); }
+    .bus-stripe-fill { fill: #1e88e5; }
+    .bus-bumper-fill { fill: #455a64; }
+    .bus-window-fill { fill: var(--bus-window); stroke: #90caf9; stroke-width: 1.5; }
+    .bus-door-fill { fill: #bbdefb; stroke: #90caf9; stroke-width: 1.5; }
+    .bus-wheel-fill { fill: #37474f; }
+    .bus-wheel-hub { fill: #78909c; }
+    .bus-light-front { fill: #fff9c4; }
+    .bus-light-rear { fill: #ef5350; }
+    .bus-mirror-fill { fill: #90a4ae; }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .explanation-text, .impact-text { right: 5%; left: 5%; max-width: 100%; }
+      .stats-row { flex-wrap: wrap; gap: 12px; }
+      .stat-box { min-width: 140px; padding: 16px 20px; }
+      .stat-number { font-size: 32px; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION DOTS -->
+  <nav class="nav-dots">
+    <span class="nav-dot active" data-target="scene-hero"></span>
+    <span class="nav-dot" data-target="scene-explanation"></span>
+    <span class="nav-dot" data-target="scene-impact"></span>
+    <span class="nav-dot" data-target="scene-cta"></span>
+  </nav>
+
+  <!-- BUS SVG SYMBOLS -->
+  <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="bus-standard" viewBox="0 0 320 160">
+      <rect class="bus-body-fill" x="20" y="30" width="280" height="85" rx="12"/>
+      <rect class="bus-roof-fill" x="20" y="25" width="280" height="15" rx="8"/>
+      <rect class="bus-bottom-fill" x="20" y="105" width="280" height="15" rx="4"/>
+      <rect class="bus-stripe-fill" x="20" y="95" width="280" height="12" rx="2"/>
+      <rect class="bus-bumper-fill" x="8" y="60" width="18" height="50" rx="6"/>
+      <circle class="bus-light-front" cx="14" cy="70" r="6"/>
+      <circle class="bus-light-rear" cx="14" cy="100" r="4"/>
+      <rect class="bus-mirror-fill" x="2" y="55" width="12" height="6" rx="3"/>
+      <rect class="bus-window-fill" x="45" y="40" width="35" height="35" rx="5"/>
+      <rect class="bus-window-fill" x="90" y="40" width="35" height="35" rx="5"/>
+      <rect class="bus-window-fill" x="135" y="40" width="35" height="35" rx="5"/>
+      <rect class="bus-window-fill" x="180" y="40" width="35" height="35" rx="5"/>
+      <rect class="bus-window-fill" x="225" y="40" width="35" height="35" rx="5"/>
+      <rect class="bus-door-fill" x="270" y="38" width="22" height="68" rx="4"/>
+      <line x1="281" y1="38" x2="281" y2="106" stroke="#90caf9" stroke-width="1.5"/>
+      <circle class="bus-wheel-fill" cx="75" cy="128" r="18"/>
+      <circle class="bus-wheel-hub" cx="75" cy="128" r="8"/>
+      <circle class="bus-wheel-fill" cx="245" cy="128" r="18"/>
+      <circle class="bus-wheel-hub" cx="245" cy="128" r="8"/>
+      <text x="160" y="90" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="700" fill="#0d47a1">Evenflow</text>
+    </symbol>
+
+    <symbol id="bus-with-door" viewBox="0 0 320 160">
+      <rect class="bus-body-fill" x="20" y="30" width="280" height="85" rx="12"/>
+      <rect class="bus-roof-fill" x="20" y="25" width="280" height="15" rx="8"/>
+      <rect class="bus-bottom-fill" x="20" y="105" width="280" height="15" rx="4"/>
+      <rect class="bus-stripe-fill" x="20" y="95" width="280" height="12" rx="2"/>
+      <rect class="bus-bumper-fill" x="8" y="60" width="18" height="50" rx="6"/>
+      <circle class="bus-light-front" cx="14" cy="70" r="6"/>
+      <rect class="bus-window-fill" x="45" y="40" width="35" height="35" rx="5"/>
+      <rect class="bus-window-fill" x="90" y="40" width="35" height="35" rx="5"/>
+      <rect class="bus-window-fill" x="135" y="40" width="35" height="35" rx="5"/>
+      <rect class="bus-window-fill" x="180" y="40" width="35" height="35" rx="5"/>
+      <rect class="bus-window-fill" x="225" y="40" width="35" height="35" rx="5"/>
+      <g id="door-left"><rect class="bus-door-fill" x="270" y="38" width="11" height="68" rx="2"/></g>
+      <g id="door-right"><rect class="bus-door-fill" x="281" y="38" width="11" height="68" rx="2"/></g>
+      <circle class="bus-wheel-fill" cx="75" cy="128" r="18"/>
+      <circle class="bus-wheel-hub" cx="75" cy="128" r="8"/>
+      <circle class="bus-wheel-fill" cx="245" cy="128" r="18"/>
+      <circle class="bus-wheel-hub" cx="245" cy="128" r="8"/>
+      <text x="160" y="90" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="700" fill="#0d47a1">Evenflow</text>
+    </symbol>
+  </svg>
+
+  <!-- SCENE 1: HERO -->
+  <section class="scene scene-hero" id="scene-hero">
+    <div class="clouds">
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+    </div>
+
+    <div class="hero-content">
+      <p class="team-name" id="teamName">moodengs</p>
+      <h1 class="brand-title" id="brandTitle"></h1>
+      <p class="tagline" id="tagline">Better bus spacing starts at the depot.</p>
+      <p class="tagline-thai" id="taglineThai">AI-assisted departure planning for depot dispatchers — นายท่า</p>
+      <div class="hero-buttons" id="heroButtons">
+        <a href="#scene-explanation" class="btn btn-primary">More information ↓</a>
+        <a href="https://ai-forall-eight.vercel.app/" target="_blank" class="btn btn-outline">Explore prototype ↗</a>
+      </div>
+    </div>
+
+    <div class="hero-bus">
+      <svg xmlns="http://www.w3.org/2000/svg"><use href="#bus-standard"/></svg>
+    </div>
+
+    <svg class="skyline" viewBox="0 0 1440 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="160" width="1440" height="40" fill="#a5d6a7"/>
+      <rect x="0" y="150" width="1440" height="15" fill="#546e7a" rx="2"/>
+      <rect x="50" y="60" width="60" height="100" rx="3" fill="#b0bec5"/>
+      <rect x="220" y="40" width="70" height="120" rx="3" fill="#b0bec5"/>
+      <rect x="420" y="50" width="65" height="110" rx="3" fill="#b0bec5"/>
+      <rect x="600" y="55" width="75" height="105" rx="3" fill="#90a4ae"/>
+      <rect x="800" y="45" width="80" height="115" rx="3" fill="#b0bec5"/>
+      <rect x="1010" y="50" width="70" height="110" rx="3" fill="#90a4ae"/>
+      <rect x="1200" y="55" width="65" height="105" rx="3" fill="#b0bec5"/>
+    </svg>
+
+    <div class="scroll-hint" id="scrollHint">
+      <span>Scroll to explore</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- SCENE 2: EXPLANATION -->
+  <section class="scene scene-explanation" id="scene-explanation">
+    <div class="explanation-pin">
+      <div class="buildings-bg" id="buildingsBg">
+        <svg width="100%" height="300" viewBox="0 0 2000 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="50" y="40" width="80" height="260" rx="4" fill="#cfd8dc" opacity="0.5"/>
+          <rect x="300" y="20" width="90" height="280" rx="4" fill="#cfd8dc" opacity="0.5"/>
+          <rect x="560" y="30" width="85" height="270" rx="4" fill="#b0bec5" opacity="0.5"/>
+          <rect x="820" y="45" width="95" height="255" rx="4" fill="#cfd8dc" opacity="0.5"/>
+          <rect x="1100" y="25" width="88" height="275" rx="4" fill="#b0bec5" opacity="0.5"/>
+          <rect x="1360" y="35" width="80" height="265" rx="4" fill="#cfd8dc" opacity="0.5"/>
+          <rect x="1650" y="40" width="70" height="260" rx="4" fill="#b0bec5" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="road"></div>
+      <div class="explanation-bus" id="explanationBus">
+        <svg xmlns="http://www.w3.org/2000/svg"><use href="#bus-standard"/></svg>
+      </div>
+      <div class="explanation-text" id="explanationText">
+        <h2>The right departure<br>makes a difference.</h2>
+        <p>Evenflow brings together <span class="highlight">live vehicle locations</span> and <span class="highlight">onboard passenger counts from overhead AI cameras</span> to recommend when buses should leave the depot.</p>
+        <br>
+        <p>The dispatcher — <span class="highlight">นายท่า</span> — stays in control.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════
+       EXTRA CSS for rolling digit counters
+       ═══════════════════════════════════════ -->
+  <style>
+    .stat-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 52px;
+      overflow: visible;
+    }
+
+    .digit-roller {
+      display: inline-block;
+      width: 0.55em;
+      height: 52px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .digit-strip {
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+    }
+
+    .digit-strip span {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: #ffffff;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .stat-suffix {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1;
+      height: 52px;
+      display: flex;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .stat-number { height: 42px; }
+      .digit-roller { height: 42px; }
+      .digit-strip span, .stat-suffix { font-size: 32px; height: 42px; }
+    }
+  </style>
+
+  <!-- SCENE 3: IMPACT -->
+  <section class="scene scene-impact" id="scene-impact">
+    <div class="impact-pin">
+
+      <!-- Bus stop background — FULL SCREEN -->
+      <svg class="bus-stop-bg"
+           style="position:absolute;inset:0;width:100%;height:100%;z-index:1"
+           viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
+           xmlns="http://www.w3.org/2000/svg">
+
+        <defs>
+          <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e3f2fd"/>
+            <stop offset="70%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#f5f5f5"/>
+          </linearGradient>
+        </defs>
+        <rect width="1440" height="900" fill="url(#skyGrad)"/>
+
+        <!-- Buildings -->
+        <rect x="60" y="280" width="90" height="300" rx="4" fill="#cfd8dc" opacity="0.35"/>
+        <rect x="180" y="240" width="110" height="340" rx="4" fill="#b0bec5" opacity="0.35"/>
+        <rect x="320" y="260" width="80" height="320" rx="4" fill="#cfd8dc" opacity="0.35"/>
+        <rect x="900" y="250" width="100" height="330" rx="4" fill="#b0bec5" opacity="0.35"/>
+        <rect x="1040" y="270" width="85" height="310" rx="4" fill="#cfd8dc" opacity="0.35"/>
+        <rect x="1180" y="290" width="75" height="290" rx="4" fill="#b0bec5" opacity="0.35"/>
+        <rect x="1300" y="260" width="95" height="320" rx="4" fill="#cfd8dc" opacity="0.35"/>
+
+        <!-- Trees -->
+        <circle cx="500" cy="490" r="45" fill="#a5d6a7" opacity="0.55"/>
+        <rect x="494" y="525" width="12" height="55" rx="4" fill="#795548" opacity="0.45"/>
+        <circle cx="850" cy="480" r="50" fill="#81c784" opacity="0.55"/>
+        <rect x="844" y="520" width="12" height="60" rx="4" fill="#795548" opacity="0.45"/>
+        <circle cx="1250" cy="495" r="40" fill="#a5d6a7" opacity="0.5"/>
+        <rect x="1244" y="525" width="12" height="50" rx="4" fill="#795548" opacity="0.4"/>
+
+        <!-- Sidewalk -->
+        <rect x="0" y="620" width="1440" height="50" fill="#e0e0e0"/>
+        <rect x="0" y="618" width="1440" height="5" fill="#bdbdbd"/>
+
+        <!-- Road -->
+        <rect x="0" y="670" width="1440" height="140" fill="#546e7a"/>
+        <line x1="0" y1="740" x2="1440" y2="740" stroke="#fdd835" stroke-width="5" stroke-dasharray="50 35"/>
+        <line x1="0" y1="675" x2="1440" y2="675" stroke="#78909c" stroke-width="2"/>
+        <line x1="0" y1="805" x2="1440" y2="805" stroke="#78909c" stroke-width="2"/>
+
+        <!-- Grass -->
+        <rect x="0" y="810" width="1440" height="90" fill="#c8e6c9"/>
+
+        <!-- Bus stop shelter — centered in left half (x ~250-490) -->
+        <rect x="250" y="430" width="240" height="12" rx="4" fill="#78909c"/>
+        <rect x="265" y="442" width="8" height="178" fill="#90a4ae"/>
+        <rect x="472" y="442" width="8" height="178" fill="#90a4ae"/>
+        <rect x="273" y="452" width="199" height="150" rx="5" fill="#bbdefb" opacity="0.3" stroke="#90caf9" stroke-width="1.5"/>
+        <rect x="255" y="452" width="18" height="150" rx="3" fill="#bbdefb" opacity="0.2" stroke="#90caf9" stroke-width="1"/>
+
+        <!-- Bench -->
+        <rect x="290" y="580" width="165" height="10" rx="4" fill="#8d6e63"/>
+        <rect x="298" y="590" width="8" height="25" rx="3" fill="#795548"/>
+        <rect x="440" y="590" width="8" height="25" rx="3" fill="#795548"/>
+
+        <!-- Bus stop sign -->
+        <rect x="210" y="410" width="8" height="210" fill="#546e7a"/>
+        <rect x="190" y="395" width="48" height="48" rx="8" fill="#1565c0"/>
+        <text x="214" y="426" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" font-weight="700" fill="#ffffff">B</text>
+        <rect x="193" y="448" width="42" height="22" rx="3" fill="#ffffff"/>
+        <text x="214" y="464" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="#1565c0">BUS</text>
+
+        <!-- Trash can -->
+        <rect x="510" y="590" width="22" height="28" rx="4" fill="#90a4ae"/>
+        <rect x="507" y="586" width="28" height="6" rx="3" fill="#78909c"/>
+      </svg>
+
+      <!-- Bus -->
+      <div class="impact-bus" id="impactBus">
+        <svg xmlns="http://www.w3.org/2000/svg"><use href="#bus-with-door"/></svg>
+      </div>
+
+      <!-- 6 Passengers -->
+      <div class="passengers" id="passengers">
+        <div class="person person-red"><div class="person-head"></div><div class="person-body"></div><div class="person-legs"><div class="person-leg"></div><div class="person-leg"></div></div></div>
+        <div class="person person-blue"><div class="person-head"></div><div class="person-body"></div><div class="person-legs"><div class="person-leg"></div><div class="person-leg"></div></div></div>
+        <div class="person person-green"><div class="person-head"></div><div class="person-body"></div><div class="person-legs"><div class="person-leg"></div><div class="person-leg"></div></div></div>
+        <div class="person person-orange"><div class="person-head"></div><div class="person-body"></div><div class="person-legs"><div class="person-leg"></div><div class="person-leg"></div></div></div>
+        <div class="person person-purple"><div class="person-head"></div><div class="person-body"></div><div class="person-legs"><div class="person-leg"></div><div class="person-leg"></div></div></div>
+        <div class="person person-gray"><div class="person-head"></div><div class="person-body"></div><div class="person-legs"><div class="person-leg"></div><div class="person-leg"></div></div></div>
+      </div>
+
+      <!-- Text with white card background -->
+      <div class="impact-text" id="impactText">
+        <h2>Less bunching.<br>More regular journeys.</h2>
+        <p>Designed to reduce service gaps and overcrowding — without asking passengers to download another app.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row" id="statsRow">
+        <div class="stat-box">
+          <div class="stat-number" id="statRuns"></div>
+          <div class="stat-label">simulation runs<br>verified</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="statDisrupted"></div>
+          <div class="stat-label">passengers<br>disrupted</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="statWarning"></div>
+          <div class="stat-label">early<br>warning</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENE 4: CTA -->
+  <section class="scene scene-cta" id="scene-cta">
+    <div class="cta-content" id="ctaContent">
+      <h2>See what drives Evenflow.</h2>
+      <p>Explore the thinking, technology, and evidence behind the project.</p>
+      <a href="https://ai-forall-eight.vercel.app/" target="_blank" class="btn-cta">Explore the full project →</a>
+    </div>
+  </section>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* NAV DOTS */
+    document.querySelectorAll('.nav-dot').forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        var target = document.getElementById(dot.dataset.target);
+        target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    function updateActiveNavDot(activeIndex) {
+      document.querySelectorAll('.nav-dot').forEach(function (dot, index) {
+        dot.classList.toggle('active', index === activeIndex);
+      });
+    }
+
+    /* TEXT SPLIT */
+    function splitTextIntoChars(element, text) {
+      element.innerHTML = '';
+      for (var i = 0; i < text.length; i++) {
+        var span = document.createElement('span');
+        span.classList.add('char');
+        span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+        span.style.transitionDelay = (i * 0.04) + 's';
+        element.appendChild(span);
+      }
+    }
+
+    /* BUILD ROLLING DIGITS */
+    function buildRollingDigits(elementId, targetText) {
+      var element = document.getElementById(elementId);
+      element.innerHTML = '';
+      var digitHeight = window.innerWidth <= 768 ? 42 : 52;
+      var strips = [];
+
+      for (var i = 0; i < targetText.length; i++) {
+        var char = targetText[i];
+
+        if (isNaN(parseInt(char))) {
+          var suffix = document.createElement('span');
+          suffix.className = 'stat-suffix';
+          suffix.textContent = char;
+          suffix.style.opacity = '0';
+          element.appendChild(suffix);
+          strips.push({ type: 'suffix', element: suffix });
+          continue;
+        }
+
+        var targetDigit = parseInt(char);
+        var roller = document.createElement('div');
+        roller.className = 'digit-roller';
+
+        var strip = document.createElement('div');
+        strip.className = 'digit-strip';
+
+        for (var cycle = 0; cycle < 3; cycle++) {
+          for (var d = 0; d <= 9; d++) {
+            var digitSpan = document.createElement('span');
+            digitSpan.textContent = d;
+            strip.appendChild(digitSpan);
+          }
+        }
+
+        roller.appendChild(strip);
+        element.appendChild(roller);
+
+        var targetPosition = 20 + targetDigit;
+        var targetY = -(targetPosition * digitHeight);
+        strips.push({ type: 'digit', element: strip, targetY: targetY, index: i });
+      }
+
+      return strips;
+    }
+
+    /* ADD ROLLING STRIPS TO TIMELINE */
+    function addRollingToTimeline(timeline, strips, startTime) {
+      for (var s = 0; s < strips.length; s++) {
+        var item = strips[s];
+        if (item.type === 'digit') {
+          timeline.fromTo(item.element,
+            { y: 0 },
+            { y: item.targetY, duration: 1.0 + (item.index * 0.15), ease: 'power3.out' },
+            startTime + (item.index * 0.08)
+          );
+        } else if (item.type === 'suffix') {
+          timeline.fromTo(item.element,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.3 },
+            startTime + 0.8
+          );
+        }
+      }
+    }
+
+    /* ═══════════════════════════════════════
+       START ANIMATIONS — no preloader, runs immediately
+       ═══════════════════════════════════════ */
+    (function startAnimations() {
+
+      var brandTitle = document.getElementById('brandTitle');
+      splitTextIntoChars(brandTitle, 'Evenflow');
+
+      /* === SCENE 1: Hero === */
+      var heroTimeline = gsap.timeline({ delay: 0.2 });
+      heroTimeline
+        .to('#teamName',    { opacity: 1, duration: 0.6, ease: 'power2.out' })
+        .to('.char',        { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: 'back.out(1.7)' }, '-=0.3')
+        .to('#tagline',     { opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.2')
+        .to('#taglineThai', { opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.3')
+        .to('#heroButtons', { opacity: 1, duration: 0.5, ease: 'power2.out' }, '-=0.2')
+        .to('#scrollHint',  { opacity: 1, duration: 0.5 }, '-=0.3');
+
+      gsap.to('.cloud-1', { x: 80, duration: 25, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      gsap.to('.cloud-2', { x: -60, duration: 20, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      gsap.to('.cloud-3', { x: 50, duration: 30, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+
+      ScrollTrigger.create({
+        trigger: '#scene-hero', start: 'top top', end: 'bottom top',
+        onUpdate: function (self) { if (self.progress < 0.5) updateActiveNavDot(0); }
+      });
+
+      gsap.to('.hero-content', {
+        y: -100, opacity: 0,
+        scrollTrigger: { trigger: '#scene-hero', start: '60% top', end: 'bottom top', scrub: 1 }
+      });
+
+      /* === SCENE 2: Bus on road === */
+      var explanationTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#scene-explanation', start: 'top top', end: '80% bottom',
+          scrub: 1, pin: '.explanation-pin',
+          onUpdate: function (self) { if (self.progress > 0.1) updateActiveNavDot(1); }
+        }
+      });
+
+      explanationTimeline
+        .fromTo('#explanationBus', { left: '70%' }, { left: '5%', duration: 3, ease: 'none' })
+        .fromTo('#buildingsBg', { x: 0 }, { x: -300, duration: 3, ease: 'none' }, 0)
+        .fromTo('#explanationText', { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 1.5, ease: 'power2.out' }, 1)
+        .fromTo('#explanationText h2', { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 1.5, ease: 'power3.out' }, 1.2)
+        .fromTo('#explanationText p', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, stagger: 0.3, ease: 'power2.out' }, 1.8);
+
+      /* === SCENE 3: Bus stop + scroll-controlled rolling stats === */
+      var runsStrips    = buildRollingDigits('statRuns',      '840');
+      var disruptStrips = buildRollingDigits('statDisrupted', '0%');
+      var warningStrips = buildRollingDigits('statWarning',   '516s');
+
+      var impactTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#scene-impact', start: 'top top', end: '85% bottom',
+          scrub: 1, pin: '.impact-pin',
+          onUpdate: function (self) { if (self.progress > 0.1) updateActiveNavDot(2); }
+        }
+      });
+
+      impactTimeline
+        .fromTo('#impactBus', { x: -400, opacity: 0 }, { x: 0, opacity: 1, duration: 1.2, ease: 'power2.out' })
+        .to('#door-left',  { x: -12, duration: 0.4, ease: 'power2.inOut' }, 1.2)
+        .to('#door-right', { x: 12,  duration: 0.4, ease: 'power2.inOut' }, 1.2)
+        .fromTo('#passengers', { right: '-200px' }, { right: '35%', duration: 2, ease: 'power1.inOut' }, 1.4)
+        .to('.person', { opacity: 1, duration: 0.25, stagger: 0.12, ease: 'power2.out' }, 1.4)
+        .fromTo('#impactText', { opacity: 0, x: 100 }, { opacity: 1, x: 0, duration: 1, ease: 'power2.out' }, 2.0)
+        .fromTo('#impactText h2', { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 1, ease: 'power3.out' }, 2.2)
+        .fromTo('#impactText p', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 2.8)
+        .to('.person-red',    { x: -150, opacity: 0, duration: 0.4, ease: 'power2.in' }, 3.0)
+        .to('.person-blue',   { x: -150, opacity: 0, duration: 0.4, ease: 'power2.in' }, 3.2)
+        .to('.person-green',  { x: -150, opacity: 0, duration: 0.4, ease: 'power2.in' }, 3.4)
+        .to('.person-orange', { x: -150, opacity: 0, duration: 0.4, ease: 'power2.in' }, 3.6)
+        .to('.person-purple', { x: -150, opacity: 0, duration: 0.4, ease: 'power2.in' }, 3.8)
+        .to('.person-gray',   { x: -150, opacity: 0, duration: 0.4, ease: 'power2.in' }, 4.0)
+        .fromTo('#statsRow', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 4.2);
+
+      /* Rolling digits — scroll-controlled */
+      addRollingToTimeline(impactTimeline, runsStrips,    4.3);
+      addRollingToTimeline(impactTimeline, disruptStrips, 4.4);
+      addRollingToTimeline(impactTimeline, warningStrips, 4.5);
+
+      /* Hold stats on screen */
+      impactTimeline.to('#statsRow', { opacity: 1, duration: 2.5 }, 6.0);
+
+      /* === SCENE 4: CTA === */
+      gsap.fromTo('#ctaContent',
+        { opacity: 0, y: 60 },
+        {
+          opacity: 1, y: 0, duration: 1, ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '#scene-cta', start: 'top 80%', end: 'top 30%', scrub: 1,
+            onUpdate: function (self) { if (self.progress > 0.3) updateActiveNavDot(3); }
+          }
+        }
+      );
+    })();
+  </script>
+</body>
+</html>
+
